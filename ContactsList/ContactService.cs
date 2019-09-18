@@ -31,17 +31,7 @@ namespace ContactsList
             clientContext.Load(list);
             clientContext.ExecuteQuery();
             TaxonomyField(clientContext, newList);
-            newList.Fields.AddFieldAsXml(Constants.nameField, true, AddFieldOptions.DefaultValue);
-            newList.Fields.AddFieldAsXml(Constants.addressField, true, AddFieldOptions.DefaultValue);
-            newList.Fields.AddFieldAsXml(Constants.numberField, true, AddFieldOptions.DefaultValue);
-            newList.Fields.AddFieldAsXml("<Field Type ='Lookup' "+
-                                            " DisplayName='Department' "+
-                                            " Required ='FALSE' "+ 
-                                            " List ='" +list.Id + "' " +
-                                            " ShowField='department'" +  
-                                            " StaticName='department'" + 
-                                            " Name='Department'/> ",
-                                            true, AddFieldOptions.DefaultValue);
+            AddFields(list, newList);
             permissions.BreakRoleInheritanceForList(title,password);            
             permissions.CreateGroup(password,title);
             clientContext.Load(newList);
@@ -50,6 +40,20 @@ namespace ContactsList
             return newList;
         }
 
+        private void AddFields(List list,List newList)
+        {
+            newList.Fields.AddFieldAsXml(Constants.nameField, true, AddFieldOptions.DefaultValue);
+            newList.Fields.AddFieldAsXml(Constants.addressField, true, AddFieldOptions.DefaultValue);
+            newList.Fields.AddFieldAsXml(Constants.numberField, true, AddFieldOptions.DefaultValue);
+            newList.Fields.AddFieldAsXml("<Field Type ='Lookup' " +
+                                            " DisplayName='Department' " +
+                                            " Required ='FALSE' " +
+                                            " List ='" + list.Id + "' " +
+                                            " ShowField='department'" +
+                                            " StaticName='department'" +
+                                            " Name='Department'/> ",
+                                            true, AddFieldOptions.DefaultValue);
+        }
         private void TaxonomyField(ClientContext clientContext,List list)
         {
             List newList = list;           
@@ -102,42 +106,6 @@ namespace ContactsList
             clientContext.Load(listItems);
             clientContext.ExecuteQuery();
             return listItems;
-        }
-
-        public void AddingItem(string password, string contactName, string email, string department, string phone, string location)
-        {
-            var clientContext = authentication.Credentials(password);
-            List contactList = clientContext.Web.Lists.GetByTitle(Constants.contacts);
-            ListItemCreationInformation listCreationInformation = new ListItemCreationInformation();
-            ListItem contactListItem = contactList.AddItem(listCreationInformation);
-            contactListItem[Constants.contactName] = contactName;
-            contactListItem[Constants.title] = contactName;
-            contactListItem[Constants.email] = email;
-            contactListItem[Constants.department] = department;
-            contactListItem[Constants.phoneNumber] = phone;
-            contactListItem[Constants.location] = location;
-            contactListItem.Update();
-            clientContext.ExecuteQuery();
-        }
-
-        public ListItem UpdateItem(int id, string password, string field, string updatedValue)
-        {
-            var clientContext = authentication.Credentials(password);
-            List contactList = clientContext.Web.Lists.GetByTitle("Contacts");
-            ListItem contactListItem = contactList.GetItemById(id);
-            contactListItem[field] = updatedValue;
-            contactListItem.Update();
-            clientContext.ExecuteQuery();
-            return contactListItem;
-        }
-
-        public void DeleteItem(int id, string password)
-        {
-            var clientContext = authentication.Credentials(password);
-            List contactList = clientContext.Web.Lists.GetByTitle("Contacts");
-            ListItem contactListItem = contactList.GetItemById(id);
-            contactListItem.DeleteObject();
-            clientContext.ExecuteQuery();
         }
 
         
